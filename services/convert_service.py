@@ -8,7 +8,6 @@ from models.convert_response import ConvertResponse
 async def converter_real_para_dolar(valor: float, data: date) -> ConvertResponse:
     cotacao = await buscar_cotacao(data)
 
-    # ✅ defesa obrigatória
     if cotacao is None:
         raise HTTPException(
             status_code=502,
