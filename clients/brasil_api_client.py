@@ -9,43 +9,23 @@ BRASIL_API_URL = "https://brasilapi.com.br/api/cambio/v1/cotacao/USD/{data}"
 
 
 async def buscar_cotacao(data: date) -> Optional[Cotacao]:
-    hoje = date.today()
-
-    if data > hoje:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "code": "DATA_FUTURA",
-                "message": "A data informada não pode ser futura."
-            }
-        )
-
-    if data == hoje:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "code": "DATA_HOJE",
-                "message": "A cotação do dia atual ainda não está disponível."
-            }
-        )
-    
     try:
         async with httpx.AsyncClient(timeout=5.0, verify=False) as client:
             response = await client.get(
                 BRASIL_API_URL.format(data=data.isoformat())
             )
         
-        if response.status_code == 400:
-            raise HTTPException(
-                status_code=400,
-                detail={
-                    "code": "DATA_INVALIDA",
-                    "message": "Data inválida para consulta de cotação."
-                }
-            )
-        
         response.raise_for_status()
 
+    except httpx.HTTPStatusError as exc:
+        body = exc.response.json()
+        raise HTTPException(
+            status_code=exc.response.status_code,
+            detail={
+                "code": body.get("name", "ERRO_API_EXTERNA"),
+                "message": body.get("message", "Erro na consulta à BrasilAPI.")
+            }
+    )    
     except httpx.RequestError as exc:
         raise HTTPException(
             status_code=502,
