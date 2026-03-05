@@ -8,18 +8,6 @@ from models.convert_response import ConvertResponse
 async def converter_real_para_dolar(valor: float, data: date) -> ConvertResponse:
     cotacao = await buscar_cotacao(data)
 
-    if cotacao is None:
-        raise HTTPException(
-            status_code=502,
-            detail="Falha ao consultar a BrasilAPI"
-        )
-
-    if not cotacao.cotacoes:
-        raise HTTPException(
-            status_code=422,
-            detail="Não existe cotação para a data informada"
-        )
-
     cotacao_ptax = next(
         (c for c in cotacao.cotacoes if c.tipo_boletim == "FECHAMENTO PTAX"),
         None
