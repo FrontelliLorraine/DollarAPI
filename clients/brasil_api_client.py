@@ -4,6 +4,8 @@ from datetime import date
 from typing import Optional
 
 from models.cotacao_model import Cotacao
+from models.convert_response import convert_brasil_api_response
+
 
 BRASIL_API_URL = "https://brasilapi.com.br/api/cambio/v1/cotacao/USD/{data}"
 
@@ -35,7 +37,8 @@ async def buscar_cotacao(data: date) -> Optional[Cotacao]:
             }
         )
 
-    cotacao = Cotacao.model_validate(response.json())
+    data_convertida = convert_brasil_api_response(response.json())
+    cotacao = Cotacao.model_validate(data_convertida)
 
     return cotacao
 
