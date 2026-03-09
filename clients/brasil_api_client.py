@@ -27,7 +27,7 @@ async def buscar_cotacao(data: date) -> Optional[Cotacao]:
                 "code": body.get("name", "ERRO_API_EXTERNA"),
                 "message": body.get("message", "Erro na consulta à BrasilAPI.")
             }
-    )    
+        )    
     except httpx.RequestError as exc:
         raise HTTPException(
             status_code=502,
